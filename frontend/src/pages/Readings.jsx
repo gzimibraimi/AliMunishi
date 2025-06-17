@@ -4,6 +4,7 @@ import autoTable from "jspdf-autotable";
 import "../styles/readings.css";
 
 export default function Readings() {
+  const API_BASE = "https://ujesjellesi.onrender.com/api";
   const [consumers, setConsumers] = useState([]);
   const [loadingConsumers, setLoadingConsumers] = useState(true);
   const [readings, setReadings] = useState([]);
@@ -17,7 +18,7 @@ export default function Readings() {
 
   // Merr konsumatorët nga backend
   useEffect(() => {
-    fetch("https://ujesjellesi.onrender.com/api/consumers")
+    fetch(`${API_BASE}/consumers`)
       .then((res) => res.json())
       .then((data) => {
         setConsumers(data);
@@ -103,7 +104,7 @@ useEffect(() => {
 
   try {
     // Merr leximin e fundit nga backend
-    const res = await fetch(`https://ujesjellesi.onrender.com/api/readings/${consumerIdNum}`);
+    const res = await fetch(`${API_BASE}/readings/${c.id}`);
     const data = await res.json();
 
     const lastReading = data
@@ -131,11 +132,12 @@ useEffect(() => {
       total,
     };
 
-    const response = await fetch("https://ujesjellesi.onrender.com/api/readings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newReading),
-    });
+const response = await fetch(`${API_BASE}/readings`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(newReading),
+});
+
 
     if (!response.ok) {
       throw new Error("Gabim gjatë ruajtjes së leximit në backend");
