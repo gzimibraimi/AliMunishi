@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import "../styles/readings.css";
 
 export default function Readings() {
@@ -68,29 +68,31 @@ export default function Readings() {
   };
 
   const submitReading = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+  e.preventDefault();
+  setSubmitting(true);
 
-    const consumerIdNum = parseInt(form.consumerId);
-    const consumer = consumers.find((c) => c.id === consumerIdNum);
-    if (!consumer) {
-      alert("Zgjidh një konsumator të vlefshëm");
-      setSubmitting(false);
-      return;
-    }
+  const consumerIdNum = parseInt(form.consumerId);
+  const consumer = consumers.find((c) => c.id === consumerIdNum);
+  if (!consumer) {
+    alert("Zgjidh një konsumator të vlefshëm");
+    setSubmitting(false);
+    return;
+  }
 
-    const current = parseFloat(form.currentReading);
-    if (isNaN(current) || current < 0) {
-      alert("Fut një lexim të vlefshëm numerik");
-      setSubmitting(false);
-      return;
-    }
+  const current = parseFloat(form.currentReading);
+  if (isNaN(current) || current < 0) {
+    alert("Fut një lexim të vlefshëm numerik");
+    setSubmitting(false);
+    return;
+  }
 
-    // Gjej leximin më të fundit për këtë konsumator
-    const lastReading = readings
-      .filter((r) => r.consumerId === consumerIdNum)
+  try {
+    // Merr leximin e fundit nga backend
+    const res = await fetch(`http://localhost:5000/api/readings/${consumerIdNum}`);
+    const data = await res.json();
+
+    const lastReading = data
       .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
     const previous = lastReading ? lastReading.currentReading : 0;
 
     if (current < previous) {
@@ -114,65 +116,65 @@ export default function Readings() {
       total,
     };
 
-    try {
-      const response = await fetch("http://localhost:5000/api/readings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newReading),
-      });
-
-      if (!response.ok) {
-        throw new Error("Gabim gjatë ruajtjes së leximit në backend");
-      }
-
-      const savedReading = await response.json();
-
-      // Shto emra dhe të dhëna të konsumatorit në leximin e ri për t'u shfaqur
-      const enrichedSavedReading = {
-        ...savedReading,
-        name: consumer.name,
-        surname: consumer.surname,
-        address: consumer.address,
-        type: consumer.type,
-      };
-
-      setReadings((prev) => [...prev, enrichedSavedReading]);
-      setForm({ consumerId: "", currentReading: "" });
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const generatePDF = (reading) => {
-    const doc = new jsPDF();
-
-    doc.setFontSize(18);
-    doc.text("Fatura për Ujë", 70, 20);
-
-    doc.setFontSize(12);
-    doc.text(`Emri: ${reading.name} ${reading.surname}`, 20, 40);
-    doc.text(`Adresa: ${reading.address}`, 20, 50);
-    doc.text(`Tipi: ${reading.type}`, 20, 60);
-    doc.text(`Data: ${new Date(reading.date).toLocaleDateString()}`, 20, 70);
-
-    doc.autoTable({
-      startY: 80,
-      head: [["Leximi i Mëparshëm", "Leximi i Tanishëm", "Konsumi (m³)", "Çmimi për m³", "Totali"]],
-      body: [
-        [
-          reading.previousReading,
-          reading.currentReading,
-          reading.consumption,
-          reading.type === "Biznes" ? "1.2" : "0.5",
-          `${reading.total.toFixed(2)} €`,
-        ],
-      ],
+    const response = await fetch("http://localhost:5000/api/readings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newReading),
     });
 
-    doc.save(`fature_${reading.name}_${reading.surname}.pdf`);
-  };
+    if (!response.ok) {
+      throw new Error("Gabim gjatë ruajtjes së leximit në backend");
+    }
+
+    const savedReading = await response.json();
+
+    const enrichedSavedReading = {
+      ...savedReading,
+      name: consumer.name,
+      surname: consumer.surname,
+      address: consumer.address,
+      type: consumer.type,
+    };
+
+    setReadings((prev) => [...prev, enrichedSavedReading]);
+    setForm({ consumerId: "", currentReading: "" });
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
+const generatePDF = (reading) => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Fatura për Ujë", 70, 20);
+
+  doc.setFontSize(12);
+  doc.text(`Emri: ${reading.name} ${reading.surname}`, 20, 40);
+  doc.text(`Adresa: ${reading.address}`, 20, 50);
+  doc.text(`Tipi: ${reading.type}`, 20, 60);
+  doc.text(`Data: ${new Date(reading.date).toLocaleDateString()}`, 20, 70);
+
+  autoTable(doc, {
+    startY: 80,
+    head: [["Leximi i Mëparshëm", "Leximi i Tanishëm", "Konsumi (m³)", "Çmimi për m³", "Totali"]],
+    body: [
+      [
+        reading.previousReading,
+        reading.currentReading,
+        reading.consumption,
+        reading.type === "Biznes" ? "1.2" : "0.5",
+        `${reading.total.toFixed(2)} MKD`,
+      ],
+    ],
+  });
+
+  doc.save(`fature_${reading.name}_${reading.surname}.pdf`);
+};
+
 
   // Filtrim leximesh sipas konsumatorit dhe datës
   const filteredReadings = readings.filter((r) => {
@@ -262,7 +264,7 @@ export default function Readings() {
                 <th style={{ textAlign: "right" }}>Leximi i mëparshëm</th>
                 <th style={{ textAlign: "right" }}>Leximi i tanishëm</th>
                 <th style={{ textAlign: "right" }}>Konsumi (m³)</th>
-                <th style={{ textAlign: "right" }}>Totali (€)</th>
+                <th style={{ textAlign: "right" }}>Totali (MKD)</th>
                 <th style={{ textAlign: "right" }}>Data</th>
                 <th>PDF</th>
               </tr>
@@ -276,7 +278,7 @@ export default function Readings() {
                     <td className="numeric">{r.previousReading}</td>
                     <td className="numeric">{r.currentReading}</td>
                     <td className="numeric">{r.consumption}</td>
-                    <td className="numeric">€{r.total.toFixed(2)}</td>
+                    <td className="numeric">{r.total.toFixed(2)} MKD</td>
                     <td className="numeric">{new Date(r.date).toLocaleString()}</td>
                     <td>
                       <button onClick={() => generatePDF(r)}>Shkarko PDF</button>

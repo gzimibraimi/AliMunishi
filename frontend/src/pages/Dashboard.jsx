@@ -89,8 +89,8 @@ const Dashboard = () => {
           <p>{totalConsumptionThisMonth.toFixed(2)}</p>
         </div>
         <div className="card">
-          <h3>Pagesat Totale Mujor (€)</h3>
-          <p>€{totalPaymentsThisMonth.toFixed(2)}</p>
+          <h3>Pagesat Totale Mujor (MKD)</h3>
+          <p>{totalPaymentsThisMonth.toFixed(2)}</p>
         </div>
         <div className="card">
           <h3>Konsumatori me Konsumin më të Lartë</h3>

@@ -1,6 +1,6 @@
 /* Container kryesor */
 .readings-container {
-  max-width: 700px;
+  max-width: 900px;
   margin: 20px auto;
   padding: 20px;
   background: #f9fafb;
@@ -71,7 +71,7 @@
 .readings-table th,
 .readings-table td {
   border-bottom: 1px solid #ddd;
-  padding: 8px 12px;
+  padding: 8px 10px;
   text-align: left;
   color: #444;
 }
