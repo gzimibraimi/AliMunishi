@@ -6,7 +6,7 @@ const Dashboard = () => {
   const [readings, setReadings] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/consumers")
+    fetch("https://ujesjellesi.onrender.com/api/consumers")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setConsumers(data);
@@ -15,7 +15,7 @@ const Dashboard = () => {
       .catch(() => setConsumers([]));
 
     // Rregullim: thirr URL normal pa ${selectedId}, dhe me backticks nëse do përdoret variable
-    fetch("http://localhost:5000/api/readings")
+    fetch("https://ujesjellesi.onrender.com/api/readings")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setReadings(data);

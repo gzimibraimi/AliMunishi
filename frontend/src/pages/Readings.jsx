@@ -17,7 +17,7 @@ export default function Readings() {
 
   // Merr konsumatorët nga backend
   useEffect(() => {
-    fetch("http://localhost:5000/api/consumers")
+    fetch("https://ujesjellesi.onrender.com/api/consumers")
       .then((res) => res.json())
       .then((data) => {
         setConsumers(data);
@@ -103,7 +103,7 @@ useEffect(() => {
 
   try {
     // Merr leximin e fundit nga backend
-    const res = await fetch(`http://localhost:5000/api/readings/${consumerIdNum}`);
+    const res = await fetch(`https://ujesjellesi.onrender.com/api/readings/${consumerIdNum}`);
     const data = await res.json();
 
     const lastReading = data
@@ -131,7 +131,7 @@ useEffect(() => {
       total,
     };
 
-    const response = await fetch("http://localhost:5000/api/readings", {
+    const response = await fetch("https://ujesjellesi.onrender.com/api/readings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newReading),

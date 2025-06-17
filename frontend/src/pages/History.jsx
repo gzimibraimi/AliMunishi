@@ -7,7 +7,7 @@ export default function History() {
   const [selectedId, setSelectedId] = useState("");
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/consumers')
+    fetch('https://ujesjellesi.onrender.com/api/consumers')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -28,7 +28,7 @@ export default function History() {
       setReadings([]);
       return;
     }
-    fetch(`http://localhost:5000/api/readings/${selectedId}`)
+    fetch(`https://ujesjellesi.onrender.com/api/readings/${selectedId}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
