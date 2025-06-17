@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "../styles/Navbar.css";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     setUser(null);
@@ -18,11 +20,21 @@ export default function Navbar({ user, setUser }) {
         <span className="navbar-title">Ujësjellësi "Ali Munishi"</span>
       </div>
 
-      <div className="navbar-center">
-        <Link to="/">Dashboard</Link>
-        <Link to="/consumers">Konsumatorët</Link>
-        <Link to="/history">Historiku</Link>
-        {user.role === "admin" && <Link to="/readings">Lexime</Link>}
+      {/* Hamburger icon */}
+      <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      {/* Links */}
+      <div className={`navbar-center ${menuOpen ? "active" : ""}`}>
+        <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+        <Link to="/consumers" onClick={() => setMenuOpen(false)}>Konsumatorët</Link>
+        <Link to="/history" onClick={() => setMenuOpen(false)}>Historiku</Link>
+        {user.role === "admin" && (
+          <Link to="/readings" onClick={() => setMenuOpen(false)}>Lexime</Link>
+        )}
       </div>
 
       <div className="navbar-right">

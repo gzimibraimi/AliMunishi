@@ -96,36 +96,34 @@
 
 /* Responsive: në ekran të vogël bëj scroll horizontale te tabela */
 @media (max-width: 600px) {
+  /* Wrapper-i i tabelës që lejon scroll horizontal */
   .readings-table-wrapper {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* për scroll më të lëmuar në iOS */
   }
 
+  /* Forma e leximeve bëhet kolone */
   .readings-form {
     flex-direction: column;
+    gap: 15px; /* më shumë hapësirë midis fushave */
   }
 
   .readings-form select,
   .readings-form input[type="number"],
   .readings-form button {
-    flex: 1 1 100%;
+    flex: 1 1 100%; /* zgjat në 100% gjerësi */
+    max-width: 100%;
   }
-}
 
-.filters {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
+  /* Stilizimi i filters për ekran të vogël */
+  .filters {
+    flex-direction: column;
+    gap: 12px; /* shto hapësirë midis elementeve */
+  }
 
-.filters input[type="text"] {
-  flex-grow: 1;
-  padding: 8px;
-  font-size: 1rem;
-}
-
-.filters input[type="date"] {
-  padding: 8px;
-  font-size: 1rem;
-  max-width: 160px;
+  .filters input[type="text"],
+  .filters input[type="date"] {
+    max-width: 100%;
+    width: 100%; /* meqë janë në kolonë, zgjaten 100% */
+  }
 }
