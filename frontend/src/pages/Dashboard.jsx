@@ -5,24 +5,25 @@ const Dashboard = () => {
   const [consumers, setConsumers] = useState([]);
   const [readings, setReadings] = useState([]);
 
-  useEffect(() => {
-    fetch("https://ujesjellesi.onrender.com/api/consumers")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setConsumers(data);
-        else setConsumers([]);
-      })
-      .catch(() => setConsumers([]));
+useEffect(() => {
+  const API = process.env.REACT_APP_API_URL;
 
-    // Rregullim: thirr URL normal pa ${selectedId}, dhe me backticks nëse do përdoret variable
-    fetch("https://ujesjellesi.onrender.com/api/readings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setReadings(data);
-        else setReadings([]);
-      })
-      .catch(() => setReadings([]));
-  }, []);
+  fetch(`${API}/consumers`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) setConsumers(data);
+      else setConsumers([]);
+    })
+    .catch(() => setConsumers([]));
+
+  fetch(`${API}/readings`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) setReadings(data);
+      else setReadings([]);
+    })
+    .catch(() => setReadings([]));
+}, []);
 
   const totalConsumers = consumers.length;
   const biznesCount = consumers.filter((c) => c.type === "Biznes").length;

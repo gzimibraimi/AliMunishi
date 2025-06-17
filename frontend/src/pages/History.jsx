@@ -5,14 +5,16 @@ export default function History() {
   const [consumers, setConsumers] = useState([]);
   const [readings, setReadings] = useState([]);
   const [selectedId, setSelectedId] = useState("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    fetch('https://ujesjellesi.onrender.com/api/consumers')
+    fetch(`${API_URL}/consumers`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          setConsumers(data);
-        } else {
+        if (Array.isArray(data)) setConsumers(data);
+        else {
           console.error("Data nga backend për konsumatorët nuk është array:", data);
           setConsumers([]);
         }
@@ -21,14 +23,14 @@ export default function History() {
         console.error('Gabim gjatë marrjes së konsumatorëve:', err);
         setConsumers([]);
       });
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     if (!selectedId) {
       setReadings([]);
       return;
     }
-    fetch(`https://ujesjellesi.onrender.com/api/readings/${selectedId}`)
+    fetch(`${API_URL}/readings/${selectedId}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -43,27 +45,17 @@ export default function History() {
         console.error('Gabim gjatë marrjes së leximeve:', err);
         setReadings([]);
       });
-  }, [selectedId]);
+  }, [selectedId, API_URL]);
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-useEffect(() => {
-  const handleScroll = () => {
-    if (window.scrollY > 300) {
-      setShowScrollTop(true);
-    } else {
-      setShowScrollTop(false);
-    }
-  };
-
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []);
-
-
-  const selectedConsumer = Array.isArray(consumers)
-    ? consumers.find(c => c.id === parseInt(selectedId))
-    : null;
+  const selectedConsumer = consumers.find(c => c.id === parseInt(selectedId));
 
   return (
     <div className="history-container">
@@ -74,7 +66,7 @@ useEffect(() => {
         onChange={(e) => setSelectedId(e.target.value)}
       >
         <option value="">Zgjedh konsumatorin</option>
-        {Array.isArray(consumers) && consumers.map((c) => (
+        {consumers.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name} {c.surname}
           </option>
@@ -112,16 +104,16 @@ useEffect(() => {
           )}
         </div>
       )}
-    {showScrollTop && (
-  <button 
-    className="scroll-to-top-float"
-    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-    aria-label="Kthehu lart"
-  >
-    ↑
-  </button>
-)}
 
+      {showScrollTop && (
+        <button 
+          className="scroll-to-top-float"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Kthehu lart"
+        >
+          ↑
+        </button>
+      )}
     </div>
   );
 }

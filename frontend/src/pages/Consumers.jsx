@@ -5,7 +5,7 @@ const Consumers = () => {
   const [consumers, setConsumers] = useState([]);
   const [form, setForm] = useState({ name: '', surname: '', type: 'Amviseri', address: '' });
 
-  const API_URL = "https://ujesjellesi.onrender.com/api/consumers";
+  const API_URL = process.env.REACT_APP_API_URL + "/consumers";
 
   useEffect(() => {
     fetch(API_URL)
