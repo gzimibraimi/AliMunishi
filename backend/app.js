@@ -33,6 +33,10 @@ app.get("/api/readings/:id", (req, res) => {
     }));
   res.json(consumerReadings);
 });
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 
 app.post("/api/consumers", (req, res) => {
   try {
