@@ -127,3 +127,25 @@
     width: 100%; /* meqë janë në kolonë, zgjaten 100% */
   }
 }
+
+.scroll-to-top-float {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background-color: #0077b6;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.scroll-to-top-float:hover {
+  background-color: #023e8a;
+  transform: scale(1.1);
+}

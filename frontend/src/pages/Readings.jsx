@@ -62,6 +62,21 @@ export default function Readings() {
       loadReadings();
     }
   }, [consumers]);
+const [showScrollTop, setShowScrollTop] = useState(false);
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (window.scrollY > 300) {
+      setShowScrollTop(true);
+    } else {
+      setShowScrollTop(false);
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -289,6 +304,16 @@ const generatePDF = (reading) => {
           </table>
         </div>
       )}
+    {showScrollTop && (
+  <button 
+    className="scroll-to-top-float"
+    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    aria-label="Kthehu lart"
+  >
+    ↑
+  </button>
+)}
+
     </div>
   );
 }
