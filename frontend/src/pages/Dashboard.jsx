@@ -14,6 +14,7 @@ const Dashboard = () => {
       })
       .catch(() => setConsumers([]));
 
+    // Rregullim: thirr URL normal pa ${selectedId}, dhe me backticks nëse do përdoret variable
     fetch("http://localhost:5000/api/readings")
       .then((res) => res.json())
       .then((data) => {
@@ -37,15 +38,15 @@ const Dashboard = () => {
     return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
   });
 
-  // Konsumi total në muajin aktual
+  // Konsumi total në muajin aktual - siguro parseFloat për rast string
   const totalConsumptionThisMonth = readingsThisMonth.reduce(
-    (acc, r) => acc + (r.consumption || 0),
+    (acc, r) => acc + (parseFloat(r.consumption) || 0),
     0
   );
 
   // Pagesat totale për muajin aktual
   const totalPaymentsThisMonth = readingsThisMonth.reduce(
-    (acc, r) => acc + (r.total || 0),
+    (acc, r) => acc + (parseFloat(r.total) || 0),
     0
   );
 
@@ -55,13 +56,13 @@ const Dashboard = () => {
     const consumptionByConsumer = {};
     readingsThisMonth.forEach((r) => {
       consumptionByConsumer[r.consumerId] =
-        (consumptionByConsumer[r.consumerId] || 0) + (r.consumption || 0);
+        (consumptionByConsumer[r.consumerId] || 0) + (parseFloat(r.consumption) || 0);
     });
     const maxConsumption = Math.max(...Object.values(consumptionByConsumer));
     const topConsumerId = Object.keys(consumptionByConsumer).find(
       (id) => consumptionByConsumer[id] === maxConsumption
     );
-    topConsumer = consumers.find((c) => c.id.toString() === topConsumerId);
+    topConsumer = consumers.find((c) => c.id === Number(topConsumerId));
   }
 
   // Numri i leximeve këtë muaj

@@ -1,114 +1,90 @@
-/* styles/consumers.css */
-
-.consumers-container {
+.history-container {
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 20px;
-  max-width: 800px;
-  margin: auto;
-  font-family: Arial, sans-serif;
 }
 
-h2 {
-  text-align: center;
-  color: #1e3a8a;
-  margin-bottom: 20px;
-}
-
-/* Form styling */
 .form-container {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .form-container input,
 .form-container select,
 .form-container button {
-  padding: 10px;
+  padding: 8px;
   font-size: 1rem;
+  flex: 1 1 200px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .form-container button {
-  background-color: #2563eb;
+  background-color: #007bff;
   color: white;
-  cursor: pointer;
   border: none;
-  transition: background-color 0.3s ease;
+  cursor: pointer;
+  flex: 1 1 100px;
 }
 
 .form-container button:hover {
-  background-color: #1e40af;
+  background-color: #0056b3;
 }
 
-/* Table styling */
-table {
+.history-table-container {
+  overflow-x: auto;
+}
+
+.history-table {
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  background-color: white;
 }
 
-thead {
-  background-color: #eff6ff;
-}
-
-th,
-td {
-  padding: 12px 16px;
+.history-table th,
+.history-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
 }
 
-th {
-  color: #1e40af;
-  font-weight: bold;
+.history-table th {
+  background-color: #f5f5f5;
 }
 
-tbody tr:hover {
-  background-color: #f3f4f6;
-}
-
-/* Responsive tweaks */
-@media (max-width: 600px) {
-  .form-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  thead {
+@media (max-width: 768px) {
+  .history-table thead {
     display: none;
   }
 
-  tr {
-    margin-bottom: 1rem;
-    background: #fff;
-    padding: 0.5rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  .history-table,
+  .history-table tbody,
+  .history-table tr,
+  .history-table td {
+    display: block;
+    width: 100%;
   }
 
-  td {
-    text-align: right;
+  .history-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .history-table td {
     padding-left: 50%;
     position: relative;
   }
 
-  td::before {
-    content: attr(data-label);
+  .history-table td::before {
     position: absolute;
+    top: 10px;
     left: 10px;
     width: 45%;
-    text-align: left;
+    padding-right: 10px;
+    white-space: nowrap;
     font-weight: bold;
-    color: #1e3a8a;
+    content: attr(data-label);
   }
 }

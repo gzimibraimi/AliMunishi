@@ -14,6 +14,11 @@ app.get("/api/consumers", (req, res) => {
   res.json(consumers);
 });
 
+app.get('/api/readings', (req, res) => {
+  // Këtu merr leximet nga database ose nga skedari
+  res.json(readings);
+});
+
 app.get("/api/readings/:id", (req, res) => {
   const consumerId = parseInt(req.params.id);
   const consumerReadings = readings
@@ -91,8 +96,23 @@ app.post("/api/readings", (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Gabim gjatë shtimit të leximit" });
   }
+});  // <-- Kjo është mbyllja e funksionit post për /api/readings
+
+// Definimi i userave për login (nuk duhet të deklarohet dy herë)
+const users = [
+  { id: 1, username: "admin", password: "admin123", role: "admin" },
+  { id: 2, username: "user", password: "user123", role: "user" },
+]; 
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    res.json({ username: user.username, role: user.role });
+  } else {
+    res.status(401).json({ error: 'Kredenciale të pavlefshme' });
+  }
 });
-
-
 
 module.exports = app;

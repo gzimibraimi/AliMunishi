@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
-import '../styles/readings.css';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import "../styles/readings.css";
+
 export default function Readings() {
   const [consumers, setConsumers] = useState([]);
   const [loadingConsumers, setLoadingConsumers] = useState(true);
-  const [readings, setReadings] = useState(() => {
-    const saved = localStorage.getItem("readings");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [readings, setReadings] = useState([]);
   const [form, setForm] = useState({
     consumerId: "",
     currentReading: "",
   });
+  const [selectedConsumerId, setSelectedConsumerId] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Merr konsumatorët nga backend
   useEffect(() => {
     fetch("http://localhost:5000/api/consumers")
       .then((res) => res.json())
@@ -26,9 +29,39 @@ export default function Readings() {
       });
   }, []);
 
+  // Merr leximet për çdo konsumator pasi konsumatorët të jenë ngarkuar
   useEffect(() => {
-    localStorage.setItem("readings", JSON.stringify(readings));
-  }, [readings]);
+    const loadReadings = async () => {
+      try {
+        const allReadings = [];
+
+        for (const c of consumers) {
+          const res = await fetch(`http://localhost:5000/api/readings/${c.id}`);
+          if (!res.ok) throw new Error("Gabim në kërkesë për lexime");
+          const data = await res.json();
+
+          // Shto të dhëna të konsumatorit në secilin lexim
+          const enriched = data.map((r) => ({
+            ...r,
+            name: c.name,
+            surname: c.surname,
+            address: c.address,
+            type: c.type,
+          }));
+
+          allReadings.push(...enriched);
+        }
+
+        setReadings(allReadings);
+      } catch (error) {
+        console.error("Gabim gjatë marrjes së leximeve:", error);
+      }
+    };
+
+    if (consumers.length > 0) {
+      loadReadings();
+    }
+  }, [consumers]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -53,6 +86,7 @@ export default function Readings() {
       return;
     }
 
+    // Gjej leximin më të fundit për këtë konsumator
     const lastReading = readings
       .filter((r) => r.consumerId === consumerIdNum)
       .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
@@ -73,11 +107,11 @@ export default function Readings() {
 
     const newReading = {
       consumerId: consumer.id,
+      date: new Date().toISOString(),
       previousReading: previous,
       currentReading: current,
       consumption,
       total,
-      date: new Date().toISOString(),
     };
 
     try {
@@ -93,7 +127,16 @@ export default function Readings() {
 
       const savedReading = await response.json();
 
-      setReadings((prev) => [...prev, savedReading]);
+      // Shto emra dhe të dhëna të konsumatorit në leximin e ri për t'u shfaqur
+      const enrichedSavedReading = {
+        ...savedReading,
+        name: consumer.name,
+        surname: consumer.surname,
+        address: consumer.address,
+        type: consumer.type,
+      };
+
+      setReadings((prev) => [...prev, enrichedSavedReading]);
       setForm({ consumerId: "", currentReading: "" });
     } catch (error) {
       alert(error.message);
@@ -102,75 +145,148 @@ export default function Readings() {
     }
   };
 
+  const generatePDF = (reading) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Fatura për Ujë", 70, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Emri: ${reading.name} ${reading.surname}`, 20, 40);
+    doc.text(`Adresa: ${reading.address}`, 20, 50);
+    doc.text(`Tipi: ${reading.type}`, 20, 60);
+    doc.text(`Data: ${new Date(reading.date).toLocaleDateString()}`, 20, 70);
+
+    doc.autoTable({
+      startY: 80,
+      head: [["Leximi i Mëparshëm", "Leximi i Tanishëm", "Konsumi (m³)", "Çmimi për m³", "Totali"]],
+      body: [
+        [
+          reading.previousReading,
+          reading.currentReading,
+          reading.consumption,
+          reading.type === "Biznes" ? "1.2" : "0.5",
+          `${reading.total.toFixed(2)} €`,
+        ],
+      ],
+    });
+
+    doc.save(`fature_${reading.name}_${reading.surname}.pdf`);
+  };
+
+  // Filtrim leximesh sipas konsumatorit dhe datës
+  const filteredReadings = readings.filter((r) => {
+    const matchConsumer = selectedConsumerId
+      ? r.consumerId === parseInt(selectedConsumerId)
+      : true;
+
+    const matchDate = selectedDate
+      ? new Date(r.date).toLocaleDateString() ===
+        new Date(selectedDate).toLocaleDateString()
+      : true;
+
+    return matchConsumer && matchDate;
+  });
+
   return (
-  <div className="readings-container">
-    <h2>Lexim i ri i ujit</h2>
-    <form onSubmit={submitReading} className="readings-form">
-      <select
-        name="consumerId"
-        value={form.consumerId}
-        onChange={handleChange}
-        required
-        disabled={loadingConsumers || submitting}
-      >
-        <option value="">Zgjedh konsumatorin</option>
-        {consumers.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.name} {c.surname} - {c.type}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        name="currentReading"
-        placeholder="Leximi i tanishëm"
-        value={form.currentReading}
-        onChange={handleChange}
-        required
-        min="0"
-        step="any"
-        disabled={submitting}
-      />
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Po ruhet..." : "Ruaj leximin"}
-      </button>
-    </form>
+    <div className="readings-container">
+      <h2>Lexim i ri i ujit</h2>
+      <form onSubmit={submitReading} className="readings-form">
+        <select
+          name="consumerId"
+          value={form.consumerId}
+          onChange={handleChange}
+          required
+          disabled={loadingConsumers || submitting}
+        >
+          <option value="">Zgjedh konsumatorin</option>
+          {consumers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} {c.surname} - {c.type}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          name="currentReading"
+          placeholder="Leximi i tanishëm"
+          value={form.currentReading}
+          onChange={handleChange}
+          required
+          min="0"
+          step="any"
+          disabled={submitting}
+        />
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Po ruhet..." : "Ruaj leximin"}
+        </button>
+      </form>
 
-    <h3>Historiku i leximeve</h3>
+      <h3>Historiku i leximeve</h3>
 
-    {readings.length === 0 ? (
-      <p className="no-readings-msg">Nuk ka lexime të regjistruara ende.</p>
-    ) : (
-      <div className="readings-table-wrapper">
-        <table className="readings-table">
-          <thead>
-            <tr>
-              <th>Konsumatori</th>
-              <th style={{ textAlign: "right" }}>Leximi i mëparshëm</th>
-              <th style={{ textAlign: "right" }}>Leximi i tanishëm</th>
-              <th style={{ textAlign: "right" }}>Konsumi (m³)</th>
-              <th style={{ textAlign: "right" }}>Totali (€)</th>
-              <th style={{ textAlign: "right" }}>Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            {readings
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
-              .map((r) => (
-                <tr key={r.id}>
-                  <td>{r.name} {r.surname}</td>
-                  <td data-label='Leximi paraprak' className="numeric">{r.previousReading}</td>
-                  <td data-label='Leximi i ri' className="numeric">{r.currentReading}</td>
-                  <td data-label='Gjithsej m³' className="numeric">{r.consumption}</td>
-                  <td data-label='Total' className="numeric">€{r.total.toFixed(2)}</td>
-                  <td data-label='Data e leximit' className="numeric">{new Date(r.date).toLocaleString()}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+      <div className="filters">
+        <select
+          value={selectedConsumerId}
+          onChange={(e) => setSelectedConsumerId(e.target.value)}
+        >
+          <option value="">Të gjithë konsumatorët</option>
+          {consumers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} {c.surname}
+            </option>
+          ))}
+        </select>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            setSelectedConsumerId("");
+            setSelectedDate("");
+          }}
+        >
+          Pastro filtrat
+        </button>
       </div>
-    )}
-  </div>
-);
 
+      {filteredReadings.length === 0 ? (
+        <p className="no-readings-msg">Nuk ka lexime për këtë filtër.</p>
+      ) : (
+        <div className="readings-table-wrapper">
+          <table className="readings-table">
+            <thead>
+              <tr>
+                <th>Konsumatori</th>
+                <th style={{ textAlign: "right" }}>Leximi i mëparshëm</th>
+                <th style={{ textAlign: "right" }}>Leximi i tanishëm</th>
+                <th style={{ textAlign: "right" }}>Konsumi (m³)</th>
+                <th style={{ textAlign: "right" }}>Totali (€)</th>
+                <th style={{ textAlign: "right" }}>Data</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredReadings
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map((r, i) => (
+                  <tr key={i}>
+                    <td>{r.name} {r.surname}</td>
+                    <td className="numeric">{r.previousReading}</td>
+                    <td className="numeric">{r.currentReading}</td>
+                    <td className="numeric">{r.consumption}</td>
+                    <td className="numeric">€{r.total.toFixed(2)}</td>
+                    <td className="numeric">{new Date(r.date).toLocaleString()}</td>
+                    <td>
+                      <button onClick={() => generatePDF(r)}>Shkarko PDF</button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }

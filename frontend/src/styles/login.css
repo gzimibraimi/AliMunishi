@@ -1,0 +1,71 @@
+/* login.css */
+
+.login-page {
+  height: 100vh; /* plot lartësinë e ekranit */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  font-family: Arial, sans-serif;
+}
+
+.login-page .logo {
+  width: 120px;
+  margin-bottom: 15px;
+}
+
+.login-page h1 {
+  margin: 5px 0 30px 0;
+  font-weight: 700;
+  color: #333;
+}
+
+.login-page form {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+}
+
+.login-page input[type="text"],
+.login-page input[type="password"] {
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.login-page input[type="text"]:focus,
+.login-page input[type="password"]:focus {
+  border-color: #007bff;
+}
+
+.login-page button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.login-page button:hover {
+  background-color: #0056b3;
+}
+
+.login-page .error-message {
+  color: red;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+}

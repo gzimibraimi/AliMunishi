@@ -110,3 +110,22 @@
     flex: 1 1 100%;
   }
 }
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters input[type="text"] {
+  flex-grow: 1;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.filters input[type="date"] {
+  padding: 8px;
+  font-size: 1rem;
+  max-width: 160px;
+}
