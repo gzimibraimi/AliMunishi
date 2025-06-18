@@ -13,6 +13,8 @@ export default function Readings() {
   const [selectedDate, setSelectedDate] = useState(() => localStorage.getItem("selectedDate") || "");
   const [submitting, setSubmitting] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [consumerSearch, setConsumerSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/consumers`)
@@ -136,6 +138,7 @@ export default function Readings() {
 
       setReadings((prev) => [...prev, enriched]);
       setForm({ consumerId: "", currentReading: "" });
+      setConsumerSearch("");
       alert("Leximi u ruajt me sukses!");
     } catch (error) {
       alert(error.message);
@@ -187,20 +190,41 @@ export default function Readings() {
     <div className="readings-container">
       <h2>Lexim i ri i ujit</h2>
       <form onSubmit={submitReading} className="readings-form">
-        <select
-          name="consumerId"
-          value={form.consumerId}
-          onChange={handleChange}
-          required
-          disabled={loadingConsumers || submitting}
-        >
-          <option value="">Zgjedh konsumatorin</option>
-          {consumers.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} {c.surname} - {c.type}
-            </option>
-          ))}
-        </select>
+        <div className="autocomplete-wrapper">
+          <input
+            type="text"
+            placeholder="Kërko konsumatorin (emër, mbiemër)"
+            value={consumerSearch}
+            onChange={(e) => {
+              setConsumerSearch(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+            disabled={loadingConsumers || submitting}
+          />
+          {showSuggestions && consumerSearch && (
+            <ul className="autocomplete-suggestions">
+              {consumers
+                .filter((c) =>
+                  `${c.name} ${c.surname}`.toLowerCase().includes(consumerSearch.toLowerCase())
+                )
+                .map((c) => (
+                  <li
+                    key={c.id}
+                    onClick={() => {
+                      setForm({ ...form, consumerId: c.id });
+                      setConsumerSearch(`${c.name} ${c.surname}`);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {c.name} {c.surname} - {c.type}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+
         <input
           type="number"
           name="currentReading"
