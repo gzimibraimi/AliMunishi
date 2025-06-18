@@ -23,7 +23,7 @@ const Consumers = () => {
         console.error('Gabim në fetch:', err);
         setConsumers([]);
       });
-  }, []);
+  }, [API_URL]);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
 useEffect(() => {
