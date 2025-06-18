@@ -210,11 +210,19 @@
   .consumer-form {
     flex-direction: column;
     gap: 15px;
+    padding: 0 10px;
   }
 
-  .consumer-form input,
+  .consumer-form input[type="text"],
   .consumer-form select,
   .consumer-form button {
-    flex: 1 1 100%;
+    flex: 1 1 100% !important;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+    .consumer-form {
+    padding: 0 10px;
   }
 }

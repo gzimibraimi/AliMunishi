@@ -123,7 +123,7 @@ export default function Consumers() {
               <td data-label="Mbiemri">{c.surname}</td>
               <td data-label="Adresa">{c.address}</td>
               <td data-label="Tipi konsumatorit">{c.type}</td>
-              <td>
+              <td data-label="Veprime">
                 <button onClick={() => handleEdit(c)}>Edito</button>
                 <button onClick={() => handleDelete(c.id)}>Fshij</button>
               </td>
