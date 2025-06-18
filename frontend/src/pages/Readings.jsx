@@ -8,15 +8,12 @@ export default function Readings() {
   const [consumers, setConsumers] = useState([]);
   const [loadingConsumers, setLoadingConsumers] = useState(true);
   const [readings, setReadings] = useState([]);
-  const [form, setForm] = useState({
-    consumerId: "",
-    currentReading: "",
-  });
-  const [selectedConsumerId, setSelectedConsumerId] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [form, setForm] = useState({ consumerId: "", currentReading: "" });
+  const [selectedConsumerId, setSelectedConsumerId] = useState(() => localStorage.getItem("selectedConsumerId") || "");
+  const [selectedDate, setSelectedDate] = useState(() => localStorage.getItem("selectedDate") || "");
   const [submitting, setSubmitting] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Merr konsumatorët nga backend
   useEffect(() => {
     fetch(`${API_BASE}/consumers`)
       .then((res) => res.json())
@@ -30,18 +27,14 @@ export default function Readings() {
       });
   }, []);
 
-  // Merr leximet për çdo konsumator pasi konsumatorët të jenë ngarkuar
   useEffect(() => {
     const loadReadings = async () => {
       try {
         const allReadings = [];
-
         for (const c of consumers) {
-          const res = await fetch(`http://localhost:5000/api/readings/${c.id}`);
+          const res = await fetch(`${API_BASE}/readings/${c.id}`);
           if (!res.ok) throw new Error("Gabim në kërkesë për lexime");
           const data = await res.json();
-
-          // Shto të dhëna të konsumatorit në secilin lexim
           const enriched = data.map((r) => ({
             ...r,
             name: c.name,
@@ -49,10 +42,8 @@ export default function Readings() {
             address: c.address,
             type: c.type,
           }));
-
           allReadings.push(...enriched);
         }
-
         setReadings(allReadings);
       } catch (error) {
         console.error("Gabim gjatë marrjes së leximeve:", error);
@@ -63,147 +54,132 @@ export default function Readings() {
       loadReadings();
     }
   }, [consumers]);
-const [showScrollTop, setShowScrollTop] = useState(false);
 
-useEffect(() => {
-  const handleScroll = () => {
-    if (window.scrollY > 300) {
-      setShowScrollTop(true);
-    } else {
-      setShowScrollTop(false);
-    }
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []);
-
+  useEffect(() => {
+    localStorage.setItem("selectedConsumerId", selectedConsumerId);
+    localStorage.setItem("selectedDate", selectedDate);
+  }, [selectedConsumerId, selectedDate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const submitReading = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
+    e.preventDefault();
+    setSubmitting(true);
 
-  const consumerIdNum = parseInt(form.consumerId);
-  const consumer = consumers.find((c) => c.id === consumerIdNum);
-  if (!consumer) {
-    alert("Zgjidh një konsumator të vlefshëm");
-    setSubmitting(false);
-    return;
-  }
-
-  const current = parseFloat(form.currentReading);
-  if (isNaN(current) || current < 0) {
-    alert("Fut një lexim të vlefshëm numerik");
-    setSubmitting(false);
-    return;
-  }
-
-  try {
-    // Merr leximin e fundit nga backend
-    const res = await fetch(`${API_BASE}/readings/${consumer.id}`);
-    const data = await res.json();
-
-    const lastReading = data
-      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    const previous = lastReading ? lastReading.currentReading : 0;
-
-    if (current < previous) {
-      alert(
-        `Leximi i tanishëm (${current}) nuk mund të jetë më i vogël se leximi i mëparshëm (${previous})`
-      );
+    const consumerIdNum = parseInt(form.consumerId);
+    const consumer = consumers.find((c) => c.id === consumerIdNum);
+    if (!consumer) {
+      alert("Zgjidh një konsumator të vlefshëm");
       setSubmitting(false);
       return;
     }
 
-    const pricePerM3 = consumer.type.toLowerCase() === "biznes" ? 1.2 : 0.5;
-    const consumption = current - previous;
-    const total = consumption * pricePerM3;
-
-    const newReading = {
-      consumerId: consumer.id,
-      date: new Date().toISOString(),
-      previousReading: previous,
-      currentReading: current,
-      consumption,
-      total,
-    };
-
-const response = await fetch(`${API_BASE}/readings`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(newReading),
-});
-
-
-    if (!response.ok) {
-      throw new Error("Gabim gjatë ruajtjes së leximit në backend");
+    const current = parseFloat(form.currentReading);
+    if (isNaN(current) || current < 0) {
+      alert("Fut një lexim të vlefshëm numerik");
+      setSubmitting(false);
+      return;
     }
 
-    const savedReading = await response.json();
+    try {
+      const res = await fetch(`${API_BASE}/readings/${consumer.id}`);
+      const data = await res.json();
 
-    const enrichedSavedReading = {
-      ...savedReading,
-      name: consumer.name,
-      surname: consumer.surname,
-      address: consumer.address,
-      type: consumer.type,
-    };
+      const lastReading = data.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      const previous = lastReading ? lastReading.currentReading : 0;
 
-    setReadings((prev) => [...prev, enrichedSavedReading]);
-    setForm({ consumerId: "", currentReading: "" });
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    setSubmitting(false);
-  }
-};
+      if (current < previous) {
+        alert(`Leximi i tanishëm (${current}) nuk mund të jetë më i vogël se leximi i mëparshëm (${previous})`);
+        setSubmitting(false);
+        return;
+      }
 
+      const pricePerM3 = consumer.type.toLowerCase() === "biznes" ? 1.2 : 0.5;
+      const consumption = current - previous;
+      const total = consumption * pricePerM3;
 
-const generatePDF = (reading) => {
-  const doc = new jsPDF();
+      const newReading = {
+        consumerId: consumer.id,
+        date: new Date().toISOString(),
+        previousReading: previous,
+        currentReading: current,
+        consumption,
+        total,
+      };
 
-  doc.setFontSize(18);
-  doc.text("Fatura për Ujë", 70, 20);
+      const response = await fetch(`${API_BASE}/readings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReading),
+      });
 
-  doc.setFontSize(12);
-  doc.text(`Emri: ${reading.name} ${reading.surname}`, 20, 40);
-  doc.text(`Adresa: ${reading.address}`, 20, 50);
-  doc.text(`Tipi: ${reading.type}`, 20, 60);
-  doc.text(`Data: ${new Date(reading.date).toLocaleDateString()}`, 20, 70);
+      if (!response.ok) throw new Error("Gabim gjatë ruajtjes së leximit");
 
-  autoTable(doc, {
-    startY: 80,
-    head: [["Leximi i Mëparshëm", "Leximi i Tanishëm", "Konsumi (m³)", "Çmimi për m³", "Totali"]],
-    body: [
-      [
-        reading.previousReading,
+      const savedReading = await response.json();
+      const enriched = {
+        ...savedReading,
+        name: consumer.name,
+        surname: consumer.surname,
+        address: consumer.address,
+        type: consumer.type,
+      };
+
+      setReadings((prev) => [...prev, enriched]);
+      setForm({ consumerId: "", currentReading: "" });
+      alert("Leximi u ruajt me sukses!");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const generatePDF = (reading) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Fatura për Ujë", 70, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Emri: ${reading.name} ${reading.surname}`, 20, 40);
+    doc.text(`Adresa: ${reading.address}`, 20, 50);
+    doc.text(`Tipi: ${reading.type}`, 20, 60);
+    doc.text(`Data: ${new Date(reading.date).toLocaleDateString()}`, 20, 70);
+
+    autoTable(doc, {
+      startY: 80,
+      head: [["Leximi i Mëparshëm", "Leximi i Tanishëm", "Konsumi (m³)", "Çmimi për m³", "Totali"]],
+      body: [[
+        reading.previousReading ?? 0,
         reading.currentReading,
         reading.consumption,
         reading.type === "Biznes" ? "1.2" : "0.5",
         `${reading.total.toFixed(2)} MKD`,
-      ],
-    ],
-  });
+      ]],
+    });
 
-  doc.save(`fature_${reading.name}_${reading.surname}.pdf`);
-};
+    doc.save(`fature_${reading.name}_${reading.surname}.pdf`);
+  };
 
+  const generateAllPDFs = () => {
+    filteredReadings.forEach(generatePDF);
+  };
 
-  // Filtrim leximesh sipas konsumatorit dhe datës
+  const formatDate = (dateString) => dateString.split("T")[0];
+
   const filteredReadings = readings.filter((r) => {
-    const matchConsumer = selectedConsumerId
-      ? r.consumerId === parseInt(selectedConsumerId)
-      : true;
-
-    const matchDate = selectedDate
-      ? new Date(r.date).toLocaleDateString() ===
-        new Date(selectedDate).toLocaleDateString()
-      : true;
-
+    const matchConsumer = selectedConsumerId ? r.consumerId === parseInt(selectedConsumerId) : true;
+    const matchDate = selectedDate ? formatDate(r.date) === selectedDate : true;
     return matchConsumer && matchDate;
   });
 
@@ -242,12 +218,8 @@ const generatePDF = (reading) => {
       </form>
 
       <h3>Historiku i leximeve</h3>
-
       <div className="filters">
-        <select
-          value={selectedConsumerId}
-          onChange={(e) => setSelectedConsumerId(e.target.value)}
-        >
+        <select value={selectedConsumerId} onChange={(e) => setSelectedConsumerId(e.target.value)}>
           <option value="">Të gjithë konsumatorët</option>
           {consumers.map((c) => (
             <option key={c.id} value={c.id}>
@@ -260,14 +232,12 @@ const generatePDF = (reading) => {
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
-        <button
-          onClick={() => {
-            setSelectedConsumerId("");
-            setSelectedDate("");
-          }}
-        >
+        <button onClick={() => { setSelectedConsumerId(""); setSelectedDate(""); }}>
           Pastro filtrat
         </button>
+        {filteredReadings.length > 0 && (
+          <button className="pdf-button" onClick={generateAllPDFs}>Shkarko PDF për të gjithë</button>
+        )}
       </div>
 
       {filteredReadings.length === 0 ? (
@@ -298,7 +268,7 @@ const generatePDF = (reading) => {
                     <td className="numeric">{r.total.toFixed(2)} MKD</td>
                     <td className="numeric">{new Date(r.date).toLocaleString()}</td>
                     <td>
-                      <button onClick={() => generatePDF(r)}>Shkarko PDF</button>
+                      <button className="pdf-button" onClick={() => generatePDF(r)}>Shkarko</button>
                     </td>
                   </tr>
                 ))}
@@ -306,16 +276,16 @@ const generatePDF = (reading) => {
           </table>
         </div>
       )}
-    {showScrollTop && (
-  <button 
-    className="scroll-to-top-float"
-    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-    aria-label="Kthehu lart"
-  >
-    ↑
-  </button>
-)}
 
+      {showScrollTop && (
+        <button
+          className="scroll-to-top-float"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Kthehu lart"
+        >
+          ↑
+        </button>
+      )}
     </div>
   );
 }

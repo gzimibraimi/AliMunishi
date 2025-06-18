@@ -36,7 +36,7 @@
 
 .readings-form select:focus,
 .readings-form input[type="number"]:focus {
-  border-color: #4f46e5; /* Indigo */
+  border-color: #4f46e5;
   outline: none;
 }
 
@@ -59,6 +59,54 @@
 
 .readings-form button:hover:not(:disabled) {
   background-color: #4338ca;
+}
+
+/* Filtrat */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.filters select,
+.filters input[type="date"],
+.filters button {
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.filters button {
+  background-color: #f97316;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filters button:hover {
+  background-color: #ea580c;
+}
+
+/* Butoni për PDF */
+.pdf-button {
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pdf-button:hover {
+  background-color: #0369a1;
 }
 
 /* Tabela e leximeve */
@@ -87,6 +135,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Wrapper për scroll horizontal */
+.readings-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Mesazhi kur nuk ka lexime */
 .no-readings-msg {
   font-style: italic;
@@ -94,40 +148,7 @@
   margin-top: 10px;
 }
 
-/* Responsive: në ekran të vogël bëj scroll horizontale te tabela */
-@media (max-width: 600px) {
-  /* Wrapper-i i tabelës që lejon scroll horizontal */
-  .readings-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* për scroll më të lëmuar në iOS */
-  }
-
-  /* Forma e leximeve bëhet kolone */
-  .readings-form {
-    flex-direction: column;
-    gap: 15px; /* më shumë hapësirë midis fushave */
-  }
-
-  .readings-form select,
-  .readings-form input[type="number"],
-  .readings-form button {
-    flex: 1 1 100%; /* zgjat në 100% gjerësi */
-    max-width: 100%;
-  }
-
-  /* Stilizimi i filters për ekran të vogël */
-  .filters {
-    flex-direction: column;
-    gap: 12px; /* shto hapësirë midis elementeve */
-  }
-
-  .filters input[type="text"],
-  .filters input[type="date"] {
-    max-width: 100%;
-    width: 100%; /* meqë janë në kolonë, zgjaten 100% */
-  }
-}
-
+/* Buton scroll-to-top */
 .scroll-to-top-float {
   position: fixed;
   bottom: 30px;
@@ -148,4 +169,32 @@
 .scroll-to-top-float:hover {
   background-color: #023e8a;
   transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .readings-form {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .readings-form select,
+  .readings-form input[type="number"],
+  .readings-form button {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .filters select,
+  .filters input[type="date"],
+  .filters button {
+    width: 100%;
+    max-width: 100%;
+  }
 }
