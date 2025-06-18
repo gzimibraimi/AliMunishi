@@ -162,10 +162,12 @@
 
 /* Responsive për ekranet e vogla */
 @media (max-width: 600px) {
+  /* Fsheh titujt e tabelës */
   .consumers-table thead {
     display: none;
   }
 
+  /* Bën që rreshtat dhe qelizat të shfaqen në bllok */
   .consumers-table,
   .consumers-table tbody,
   .consumers-table tr,
@@ -179,7 +181,7 @@
     background-color: #fff;
     border-radius: 8px;
     padding: 15px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .consumers-table td {
@@ -207,6 +209,7 @@
     text-transform: capitalize;
   }
 
+  /* Përshtatja e formës për mobile */
   .consumer-form {
     flex-direction: column;
     gap: 15px;
@@ -217,12 +220,9 @@
   .consumer-form select,
   .consumer-form button {
     flex: 1 1 100% !important;
-    width: 100%;
+    width: 100% !important;
     max-width: 100%;
     box-sizing: border-box;
     font-size: 16px;
-  }
-    .consumer-form {
-    padding: 0 10px;
   }
 }
