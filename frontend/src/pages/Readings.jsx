@@ -104,7 +104,7 @@ useEffect(() => {
 
   try {
     // Merr leximin e fundit nga backend
-    const res = await fetch(`${API_BASE}/readings/${c.id}`);
+    const res = await fetch(`${API_BASE}/readings/${consumer.id}`);
     const data = await res.json();
 
     const lastReading = data
