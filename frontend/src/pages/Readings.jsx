@@ -106,7 +106,7 @@ export default function Readings() {
         return;
       }
 
-      const pricePerM3 = consumer.type.toLowerCase() === "biznes" ? 1.2 : 0.5;
+      const pricePerM3 = consumer.type.toLowerCase() === "biznes" ? 15 : 5;
       const consumption = current - previous;
       const total = consumption * pricePerM3;
 
@@ -166,7 +166,7 @@ export default function Readings() {
         reading.previousReading ?? 0,
         reading.currentReading,
         reading.consumption,
-        reading.type === "Biznes" ? "1.2" : "0.5",
+        reading.type === "Biznes" ? "15" : "5",
         `${reading.total.toFixed(2)} MKD`,
       ]],
     });
