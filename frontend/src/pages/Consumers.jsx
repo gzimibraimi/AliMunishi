@@ -119,10 +119,10 @@ export default function Consumers() {
         <tbody>
           {filteredConsumers.map((c) => (
             <tr key={c.id}>
-              <td>{c.name}</td>
-              <td>{c.surname}</td>
-              <td>{c.address}</td>
-              <td>{c.type}</td>
+              <td data-label="Emri">{c.name}</td>
+              <td data-label="Mbiemri">{c.surname}</td>
+              <td data-label="Adresa">{c.address}</td>
+              <td data-label="Tipi konsumatorit">{c.type}</td>
               <td>
                 <button onClick={() => handleEdit(c)}>Edito</button>
                 <button onClick={() => handleDelete(c.id)}>Fshij</button>
