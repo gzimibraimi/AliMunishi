@@ -106,7 +106,7 @@ export default function Consumers() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <table className="consumer-table">
+      <table className="consumers-table">
         <thead>
           <tr>
             <th>Emri</th>
