@@ -18,7 +18,7 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
@@ -51,12 +51,36 @@
   margin: 0;
 }
 
-@media (max-width: 600px) {
+/* Responsive styling */
+@media (max-width: 768px) {
   .dashboard-container {
-    margin: 1rem;
+    margin: 1rem auto;
+    padding: 0 0.5rem;
+  }
+
+  .dashboard-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .card h3 {
+    font-size: 1rem;
   }
 
   .card p {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .card p {
+    font-size: 1.3rem;
   }
 }
