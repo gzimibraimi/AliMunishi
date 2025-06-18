@@ -1,11 +1,11 @@
-/* styles/consumers.css */
+/* styles/consumers.css - Përditësuar me elemente nga history.css */
 
 /* Konteineri kryesor */
 .consumers-container {
   max-width: 900px;
   margin: 20px auto 40px auto;
-  padding: 20px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 30px;
+  font-family: Arial, sans-serif; /* ose "Segoe UI", Tahoma, Geneva */
   background: #f9fafb;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -13,7 +13,7 @@
 
 /* Titulli */
 .consumers-container h2 {
-  color: #023e8a;
+  color: #0077b6; /* nga history.css */
   text-align: center;
   margin-bottom: 25px;
   font-weight: 700;
@@ -40,14 +40,14 @@
 
 .consumer-form input[type="text"]:focus,
 .consumer-form select:focus {
-  border-color: #4f46e5;
+  border-color: #0077b6; /* bluja nga history */
   outline: none;
 }
 
 .consumer-form button {
   flex: 1 1 120px;
   padding: 10px 20px;
-  background-color: #4f46e5;
+  background-color: #0077b6; /* bluja nga history */
   color: white;
   border: none;
   border-radius: 6px;
@@ -59,14 +59,15 @@
 }
 
 .consumer-form button:hover {
-  background-color: #4338ca;
+  background-color: #023e8a;
 }
 
-/* Tabela e konsumatorëve */
+/* Wrapper tabela */
 .consumers-table-wrapper {
   overflow-x: auto;
 }
 
+/* Tabela */
 .consumers-table {
   width: 100%;
   border-collapse: collapse;
@@ -80,7 +81,7 @@
 .consumers-table td {
   border: 1px solid #ddd;
   padding: 12px 15px;
-  text-align: left;
+  text-align: center; /* ndryshova në center si history.css */
   color: #333;
   vertical-align: middle;
 }
@@ -93,7 +94,7 @@
 }
 
 .consumers-table tr:nth-child(even) {
-  background-color: #f5faff;
+  background-color: #f1f1f1; /* nga history.css */
 }
 
 .consumers-table tr:hover {
@@ -101,19 +102,21 @@
   transition: background-color 0.3s ease;
 }
 
+/* Butonat veprimeve në tabelë */
 .consumers-table td.actions {
   text-align: center;
 }
 
 .consumers-table button.edit-btn,
 .consumers-table button.delete-btn {
-  padding: 6px 10px;
-  margin: 0 4px;
+  padding: 6px 12px;
+  margin: 0 5px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 14px;
 }
 
 .consumers-table button.edit-btn {
@@ -201,6 +204,7 @@
     font-weight: 700;
     color: #023e8a;
     white-space: nowrap;
+    text-transform: capitalize;
   }
 
   .consumer-form {
